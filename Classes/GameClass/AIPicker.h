@@ -56,7 +56,8 @@ public:
 			}
 			vector<Chess*> hand;
 			for (Chess* ch : handChess){
-				hand.push_back(ch->clone());
+				//hand.push_back(ch->clone());
+				hand.push_back(new Chess(ch->getHead(), ch->getTail()));
 			}
 			int headRequired = Table::getInstance()->getHeadRequired();
 			int tailRequired = Table::getInstance()->getTailRequired();

@@ -15,6 +15,9 @@ public:
     void menuCloseCallback(cocos2d::Ref* pSender);
     
 	void showMessage(std::string msg);
+
+	void disableBtn(std::string name);
+	void enableBtn(std::string name);
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 };

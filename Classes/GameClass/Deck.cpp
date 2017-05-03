@@ -56,6 +56,9 @@ bool Deck::init()
 
 void Deck::arrangeChess()
 {
+	if (chesses.empty())
+		return;
+
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 
 	Vec2 basePosition = Vec2(0.0f, visibleSize.height - 24);
@@ -67,19 +70,29 @@ void Deck::arrangeChess()
 		auto action = MoveTo::create(0.7,
 			Vec2(basePosition.x + chessPositionIndex.x * (chesses[i]->getSprite()->getBoundingBox().size.width + chessSpace),
 			basePosition.y - chessPositionIndex.y * (chesses[i]->getSprite()->getBoundingBox().size.height + chessSpace)));
+		chesses[i]->stopAllActions();
 		chesses[i]->runAction(action);
 	}
 }
 
 Chess* Deck::drawTop()
 {
+	if (chesses.empty())
+		return nullptr;
 	Chess* last = this->chesses.back();
 	this->chesses.pop_back();
 	last->retain();
-	this->removeChild(last);
+	last->removeFromParentAndCleanup(false);
 	return last;
 }
 
+void Deck::showAllChess()
+{
+	for (Chess* ch : this->chesses)
+	{
+		ch->setFaceUp(true);
+	}
+}
 
 void Deck::shuffle(){
 	//cout << "Shuffling deck..." << endl;
@@ -96,6 +109,15 @@ void Deck::shuffle(){
 	CCLOG("Deck shuffled. Deck size: %d", this->chesses.size());
 	//cout << "Deck shuffled. " << " Deck size: " << this->chesses.size() << endl;
 
+}
+
+void Deck::append(Chess* chess)
+{
+	chesses.push_back(chess);
+	this->addChild(chess);
+	chess->setRotation(0);
+	chess->release();
+	arrangeChess();
 }
 
 void Deck::showState()

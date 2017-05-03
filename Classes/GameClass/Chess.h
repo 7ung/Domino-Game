@@ -8,6 +8,9 @@
 
 USING_NS_CC;
 
+class Chess;
+typedef void(*onClick)(Chess* sender);
+
 class Chess : public Node
 {
 public:
@@ -32,7 +35,11 @@ public:
 		return _sprite;
 	}
 
+	onClick onClickEvent;
+
 	void setFaceUp(bool isFaceUp);
+	Chess(int head, int tail); // 
+
 private:
 	Sprite* _sprite;
 	Sprite* _faceDown;
@@ -40,7 +47,6 @@ private:
 
 	bool _isSwitch;
 
-	Chess(int head, int tail); // 
 
 };
 

@@ -1,11 +1,9 @@
-#include "GameMaster.h"
+﻿#include "GameMaster.h"
 
 #include "HelloWorldScene.h"
 
 using namespace std;
 
-#define AI_PLAYER 1
-#define HUMAN_PLAYER 0
 
 GameMaster* GameMaster::instance;
 
@@ -23,8 +21,11 @@ bool  GameMaster::init(int playerNumber)
 		this->addPlayer(player);
 	}
 
-	_players[0]->setPosition(24, 24);
-	_players[1]->setPosition(24, 300);
+	_players[HUMAN_PLAYER]->setPosition(24, 24);
+	_players[HUMAN_PLAYER]->setHuman(true);
+
+	_players[AI_PLAYER]->setPosition(24, 300);
+	_players[AI_PLAYER]->setHuman(false);
 
 	this->initDeck();
 	CCLOG("Game crated");
@@ -56,7 +57,9 @@ void GameMaster::initDeck()
 	this->addChild(_deck);
 
 	this->_table = Table::getInstance();
-	this->_table->setPosition(Vec2::ZERO);
+	this->_table->setPosition(20.0f, 120.0f);
+	//this->_table->setPosition(0.0f, 0.0f);
+
 	this->addChild(_table);
 	CCLOG("Game creating deck finish");
 	//cout << "Game creating deck finish" << endl;
@@ -110,7 +113,7 @@ void GameMaster::setCurrentPlayer(const int& pos)
 
 	if (this->_playerPosition == AI_PLAYER)
 	{
-		scene->showMessage("AI turn");
+		scene->showMessage("COMPUTER TURN");
 		auto delay = DelayTime::create(3);
 		auto seq = Sequence::create(delay, CallFunc::create([this](){
 			_players[AI_PLAYER]->autoAll();
@@ -118,7 +121,7 @@ void GameMaster::setCurrentPlayer(const int& pos)
 		this->runAction(seq);
 	}
 	else if (this->_playerPosition == HUMAN_PLAYER){
-		scene->showMessage("Human player");
+		scene->showMessage("PLAYER TURN");
 
 	}
 }
@@ -157,14 +160,28 @@ void GameMaster::showState()
 
 }
 
-void GameMaster::showMessage(std::string msg)
-{
-}
 
 
 void GameMaster::nextPlayer()
 {
+	if (this->checkEndGame())
+		return;
 	this->setCurrentPlayer((getCurrentPlayer() + 1) % this->_players.size());
+
+	auto scene = (HelloWorld*)Director::getInstance()->getRunningScene();
+	if (this->_playerPosition == HUMAN_PLAYER)
+	{
+		if (Deck::getInstance()->hasChess())
+			scene->disableBtn("skip");
+		else
+			scene->enableBtn("skip");
+		scene->enableBtn("draw");
+	}
+	else
+	{
+		scene->disableBtn("skip");
+		scene->disableBtn("draw");
+	}
 }
 
 int GameMaster::findFirstPlayer()
@@ -195,9 +212,83 @@ int GameMaster::findFirstPlayer()
 	}
 }
 
+bool GameMaster::checkEndGame()
+{
+	auto player = getWinner();
+	if (player == nullptr)
+		return false;
+	if (Deck::getInstance()->hasChess() == false){
+		if (!_players[HUMAN_PLAYER]->hasAvailableMove()
+			&& !_players[AI_PLAYER]->hasAvailableMove()){
+			player = getWinnerByScore();
+		}
+	}
+	winner(player);
+	_isRunning = false;
+	_players[AI_PLAYER]->showAllChess();
+	_deck->showAllChess();
+	return true;
+}
+
+void GameMaster::winner(Player* player)
+{
+	if (player->isHuman())
+	{
+		this->showMessage("PLAYER WIN");
+	}
+	else 
+	{
+		this->showMessage("COMPUTER WIN");
+	}
+}
+
+Player* GameMaster::getWinner()
+{
+	for (Player* p : _players)
+	{
+		// Người chơi hết cờ thì thắng
+		if (p->hasChess() == false)
+		{
+			return p;
+		}
+	}
+	
+	return nullptr;
+}
+
+Player* GameMaster::getWinnerByScore()
+{
+	int* scores = new int[_players.size()];
+	int min = 500;
+	int minIndex = -1;
+	for (int i = 0; i < _players.size(); i++)
+	{
+		scores[i] = _players[i]->getScore();
+		if (scores[i] < min)
+		{
+			min = scores[i];
+			minIndex = i;
+		}
+	}
+	return _players.at(minIndex);
+}
+
+void GameMaster::showMessage(std::string msg)
+{
+	auto scene = (HelloWorld*)Director::getInstance()->getRunningScene()->getChildByName("game-layer");
+	scene->showMessage(msg);
+}
+
 void GameMaster::shuffleDeck()
 {
 	//this->_deck->shuffle();
+}
+
+void GameMaster::replay()
+{
+	_players[HUMAN_PLAYER]->replay();
+	_players[AI_PLAYER]->replay();
+	_table->replay();
 }
 
 
@@ -211,6 +302,8 @@ GameMaster* GameMaster::getInstance()
 
 GameMaster::GameMaster()
 {
+	this->_isRunning = false;
+
 }
 
 GameMaster::~GameMaster()

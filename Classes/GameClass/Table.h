@@ -26,12 +26,16 @@ public:
 
 	void addHead(Chess* chess);
 	void addTail(Chess* chess);
+	void removeChess(Chess* removedChess);
+
 
 	int getHeadRequired();
 	int getTailRequired();
 
+	void replay();
 	void showState();
-	
+	void arrangeChess();
+
 	inline bool hasChess(){
 		return _tableChesses.size() != 0;
 	}

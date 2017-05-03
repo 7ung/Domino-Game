@@ -21,8 +21,10 @@ public:
 	void shuffle();
 	Chess* drawTop();
 
+	void showAllChess();
 	void arrangeChess();
 
+	void append(Chess* chess);
 	void showState();
 
 	inline bool hasChess(){

@@ -21,6 +21,7 @@ public:
 	int maxSameChess();
 	int maxChessValue();
 
+	void move(Chess* chess);
 	void move(int position);
 	void moveAI();
 	void moveFirstTurn();
@@ -38,10 +39,30 @@ public:
 
 	void autoAll();
 
+	void addEventClick(Chess* chess);
+	
+	void replay();
+
+	void skipTurn();
+
+	bool hasAvailableMove();
+
+	int getScore();
+
+	inline void setHuman(const bool& human)
+	{
+		this->_isHuman = human;
+	}
+
+	inline bool isHuman(){
+		return _isHuman;
+	}
 private:
 	Player();
 	std::vector<Chess*> _handlingChesss;
 
-	std::vector<Chess*> getAvailableChess();
+	void getAvailableChess(std::vector<Chess*>& availableChess);
+
+	bool _isHuman;
 };
 #endif // !__PLAYER_H__

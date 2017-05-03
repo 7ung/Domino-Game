@@ -47,7 +47,28 @@ bool Chess::init()
 	_faceDown = Sprite::create("domino_01.png");
 	_faceDown->setVisible(false);
 	_faceDown->setScale(0.4f);
+
 	this->addChild(_faceDown);
+
+
+	auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = [this](Touch* touch, Event* _event)->bool{
+
+		auto chessPosition = this->getParent()->convertToWorldSpace(this->getPosition());
+		int width = this->getSprite()->getBoundingBox().size.height;
+		int height = this->getSprite()->getBoundingBox().size.width;
+		auto chessBound = Rect(chessPosition.x - width / 2, chessPosition.y - height / 2, 
+			width, height);
+
+		auto touchLocation = this->getParent()->convertToWorldSpace(touch->getLocation());
+		if (chessBound.containsPoint(touch->getLocation())){
+			if (onClickEvent != nullptr){
+				onClickEvent(this);
+			}
+		}
+		return true;
+	};
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener, _sprite);
 
 	return true;
 }
@@ -72,6 +93,8 @@ bool Chess::isSameNumber()
 void Chess::switchNumber()
 {
 	_isSwitch = !_isSwitch;
+	this->getSprite()->setFlipX(_isSwitch);
+	this->getSprite()->setFlipY(_isSwitch);
 }
 
 bool Chess::hasNumber(const int& number)
