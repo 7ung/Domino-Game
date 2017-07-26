@@ -1,3 +1,5 @@
+// shit
+
 #pragma once
 class Chess
 {

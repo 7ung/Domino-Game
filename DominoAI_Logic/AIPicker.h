@@ -12,6 +12,11 @@ using namespace std;
 
 class AIPicker
 {
+
+
+	// hahah
+	// hihi
+
 	// Những quân cờ đã biết. (Những quân cờ chắc chắn đối thủ không có)
 	// Bao gồm cờ trên tay và cờ trên bàn.
 	//std::vector<Chess*> _knownChess;
